@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Admin – vebjorn.world</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #1d2b3f;
+      --ink-soft: #2a3b54;
+      --mist: #eef2f6;
+      --paper: #ffffff;
+      --line: #d5dee8;
+      --muted: #5a697d;
+      --marigold: #e3a13b;
+      --marigold-dark: #c7861f;
+      --yes: #2e6b4f;
+      --yes-bg: #e2f0e8;
+      --no: #8a3a2f;
+      --no-bg: #f6e4e1;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+      font-size: 0.975rem;
+      line-height: 1.5;
+      color: var(--ink);
+      background: var(--mist);
+      display: grid;
+      grid-template-columns: 15rem 1fr;
+      min-height: 100vh;
+    }
+
+    /* Sidemeny */
+    aside {
+      background: var(--ink);
+      color: #dbe4ee;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .wordmark {
+      font-family: "Young Serif", Georgia, serif;
+      font-size: 1.35rem;
+      color: #fff;
+      padding: 0 .5rem;
+      margin: 0;
+    }
+    nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .25rem; }
+    nav a {
+      display: block;
+      padding: .55rem .75rem;
+      border-radius: .5rem;
+      color: #c3cfdc;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    nav a:hover { background: var(--ink-soft); color: #fff; }
+    nav a[aria-current="page"] {
+      background: var(--ink-soft);
+      color: #fff;
+      box-shadow: inset 3px 0 0 var(--marigold);
+    }
+    .user { margin-top: auto; padding: 0 .5rem; font-size: .875rem; }
+    .user span { display: block; color: #fff; font-weight: 600; word-break: break-all; }
+    .user a { color: var(--marigold); }
+
+    /* Innhold */
+    main { padding: 2rem clamp(1rem, 3vw, 2.5rem) 3rem; min-width: 0; }
+    .page-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    h1 {
+      font-family: "Young Serif", Georgia, serif;
+      font-weight: 400;
+      font-size: 2rem;
+      margin: 0;
+      line-height: 1.1;
+    }
+    .page-head p { margin: .25rem 0 0; color: var(--muted); }
+    .actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+
+    button, .btn {
+      font: inherit;
+      font-weight: 600;
+      border-radius: .5rem;
+      padding: .55rem .95rem;
+      cursor: pointer;
+      border: 1.5px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+    }
+    button:hover { border-color: var(--ink); }
+    button.primary { background: var(--marigold); border-color: var(--marigold); }
+    button.primary:hover { background: var(--marigold-dark); border-color: var(--marigold-dark); }
+    button:disabled { opacity: .5; cursor: not-allowed; }
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible {
+      outline: 3px solid var(--marigold);
+      outline-offset: 2px;
+    }
+
+    /* Tall */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: .75rem;
+      margin-bottom: 1.25rem;
+    }
+    .stat { padding: 1rem 1.25rem; }
+    .stat + .stat { border-left: 1px solid var(--line); }
+    .stat strong {
+      display: block;
+      font-family: "Young Serif", Georgia, serif;
+      font-weight: 400;
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+    .stat span { color: var(--muted); font-size: .9rem; }
+    .stat.highlight strong { color: var(--yes); }
+
+    /* Søk og filter */
+    .filters { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .filters input, .filters select {
+      font: inherit;
+      padding: .55rem .8rem;
+      border: 1.5px solid var(--line);
+      border-radius: .5rem;
+      background: var(--paper);
+      color: inherit;
+    }
+    .filters input { flex: 1 1 16rem; }
+
+    /* Tabell */
+    .table-wrap {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: .75rem;
+      overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; min-width: 52rem; }
+    th, td { text-align: left; padding: .7rem .9rem; vertical-align: top; }
+    th {
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--muted);
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+    tbody tr + tr td { border-top: 1px solid var(--mist); }
+    td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    th.num { text-align: right; }
+    td.when { white-space: nowrap; color: var(--muted); font-variant-numeric: tabular-nums; }
+    td.name { font-weight: 600; }
+    td.name small { display: block; font-weight: 400; color: var(--muted); }
+    td.text { max-width: 18rem; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .pill {
+      display: inline-block;
+      padding: .1rem .55rem;
+      border-radius: 1rem;
+      font-size: .85rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .pill.yes { background: var(--yes-bg); color: var(--yes); }
+    .pill.no { background: var(--no-bg); color: var(--no); }
+    button.delete {
+      padding: .3rem .6rem;
+      font-size: .85rem;
+      color: var(--no);
+      border-color: transparent;
+      background: none;
+    }
+    button.delete:hover { border-color: var(--no); }
+
+    .message { padding: 2.5rem 1rem; text-align: center; color: var(--muted); }
+    .message.error { color: var(--no); }
+
+    [hidden] { display: none !important; }
+
+    @media (max-width: 760px) {
+      body { grid-template-columns: 1fr; }
+      aside { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 1rem; }
+      nav { flex: 1; }
+      nav ul { display: flex; }
+      .user { margin-top: 0; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .stat:nth-child(3) { border-left: 0; }
+      .stat:nth-child(n+3) { border-top: 1px solid var(--line); }
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <p class="wordmark">vebjorn.world</p>
+    <nav aria-label="Moduler">
+      <!-- Nye moduler legges til her -->
+      <ul>
+        <li><a href="/" aria-current="page">Invitasjon</a></li>
+      </ul>
+    </nav>
+    <div class="user">
+      Logget inn som
+      <span id="user-name">…</span>
+      <a href="/.auth/logout?post_logout_redirect_uri=/">Logg ut</a>
+    </div>
+  </aside>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Invitasjon</h1>
+        <p>Svar fra invite.vebjorn.world</p>
+      </div>
+      <div class="actions">
+        <button type="button" id="refresh">Oppdater</button>
+        <button type="button" id="download" class="primary" disabled>Last ned CSV</button>
+      </div>
+    </div>
+
+    <section class="stats" aria-label="Oppsummering">
+      <div class="stat highlight"><strong id="stat-people">–</strong><span>personer kommer</span></div>
+      <div class="stat"><strong id="stat-yes">–</strong><span>har svart ja</span></div>
+      <div class="stat"><strong id="stat-no">–</strong><span>har svart nei</span></div>
+      <div class="stat"><strong id="stat-allergies">–</strong><span>med allergier</span></div>
+    </section>
+
+    <div class="filters">
+      <input type="search" id="search" placeholder="Søk i navn, e-post, allergier og hilsener" aria-label="Søk">
+      <select id="filter" aria-label="Vis">
+        <option value="all">Alle svar</option>
+        <option value="yes">Bare de som kommer</option>
+        <option value="no">Bare de som ikke kommer</option>
+        <option value="allergies">Bare med allergier</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table id="table" hidden>
+        <thead>
+          <tr>
+            <th scope="col">Navn</th>
+            <th scope="col">Svar</th>
+            <th scope="col" class="num">Personer</th>
+            <th scope="col">Allergier</th>
+            <th scope="col">Hilsen</th>
+            <th scope="col">Sendt</th>
+            <th scope="col"><span hidden>Handlinger</span></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p class="message" id="message" role="status">Henter svar …</p>
+    </div>
+  </main>
+
+  <script>
+    let allRows = [];
+
+    const $ = (id) => document.getElementById(id);
+    const dateFmt = new Intl.DateTimeFormat("nb-NO", { dateStyle: "short", timeStyle: "short" });
+
+    function formatDate(iso) {
+      return iso ? dateFmt.format(new Date(iso)) : "";
+    }
+
+    function setMessage(text, isError = false) {
+      $("message").textContent = text;
+      $("message").className = isError ? "message error" : "message";
+      $("message").hidden = !text;
+    }
+
+    async function loadUser() {
+      try {
+        const res = await fetch("/.auth/me");
+        const data = await res.json();
+        $("user-name").textContent = data.clientPrincipal?.userDetails || "ukjent";
+      } catch {
+        $("user-name").textContent = "ukjent";
+      }
+    }
+
+    async function loadRows() {
+      setMessage("Henter svar …");
+      $("table").hidden = true;
+      $("download").disabled = true;
+      try {
+        const res = await fetch("/api/rsvps", { cache: "no-store" });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const code = data.code ? " (feilkode: " + data.code + ")" : "";
+          throw new Error((data.error || "Kunne ikke hente svarene.") + code);
+        }
+        allRows = data;
+        updateStats();
+        render();
+        $("download").disabled = allRows.length === 0;
+      } catch (err) {
+        setMessage(err.message + " Trykk Oppdater for å prøve igjen.", true);
+      }
+    }
+
+    function updateStats() {
+      const yes = allRows.filter((r) => r.attending);
+      $("stat-people").textContent = yes.reduce((sum, r) => sum + r.guests, 0);
+      $("stat-yes").textContent = yes.length;
+      $("stat-no").textContent = allRows.length - yes.length;
+      $("stat-allergies").textContent = yes.filter((r) => r.allergies).length;
+    }
+
+    function visibleRows() {
+      const q = $("search").value.trim().toLowerCase();
+      const filter = $("filter").value;
+      return allRows.filter((r) => {
+        if (filter === "yes" && !r.attending) return false;
+        if (filter === "no" && r.attending) return false;
+        if (filter === "allergies" && !r.allergies) return false;
+        if (!q) return true;
+        return [r.name, r.email, r.allergies, r.message].some((v) => (v || "").toLowerCase().includes(q));
+      });
+    }
+
+    function cell(text, className) {
+      const td = document.createElement("td");
+      if (className) td.className = className;
+      td.textContent = text;
+      return td;
+    }
+
+    function render() {
+      const rows = visibleRows();
+      const tbody = $("rows");
+      tbody.replaceChildren();
+
+      if (allRows.length === 0) {
+        $("table").hidden = true;
+        setMessage("Ingen har svart ennå. Svarene dukker opp her når gjestene sender skjemaet.");
+        return;
+      }
+      if (rows.length === 0) {
+        $("table").hidden = true;
+        setMessage("Ingen svar passer til søket. Endre søket eller velg «Alle svar».");
+        return;
+      }
+
+      for (const r of rows) {
+        const tr = document.createElement("tr");
+
+        const name = cell(r.name, "name");
+        if (r.email) {
+          const small = document.createElement("small");
+          small.textContent = r.email;
+          name.appendChild(small);
+        }
+        tr.appendChild(name);
+
+        const answer = document.createElement("td");
+        const pill = document.createElement("span");
+        pill.className = "pill " + (r.attending ? "yes" : "no");
+        pill.textContent = r.attending ? "Kommer" : "Kommer ikke";
+        answer.appendChild(pill);
+        tr.appendChild(answer);
+
+        tr.appendChild(cell(r.attending ? r.guests : "–", "num"));
+        tr.appendChild(cell(r.allergies, "text"));
+        tr.appendChild(cell(r.message, "text"));
+        tr.appendChild(cell(formatDate(r.submittedAt), "when"));
+
+        const actions = document.createElement("td");
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "delete";
+        del.textContent = "Slett";
+        del.setAttribute("aria-label", "Slett svaret fra " + r.name);
+        del.addEventListener("click", () => deleteRow(r, del));
+        actions.appendChild(del);
+        tr.appendChild(actions);
+
+        tbody.appendChild(tr);
+      }
+      setMessage("");
+      $("table").hidden = false;
+    }
+
+    async function deleteRow(row, button) {
+      if (!confirm("Slette svaret fra " + row.name + "? Dette kan ikke angres.")) return;
+      button.disabled = true;
+      try {
+        const res = await fetch("/api/rsvps/" + encodeURIComponent(row.id), { method: "DELETE" });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Kunne ikke slette svaret.");
+        allRows = allRows.filter((r) => r.id !== row.id);
+        updateStats();
+        render();
+        $("download").disabled = allRows.length === 0;
+      } catch (err) {
+        alert(err.message + " Prøv igjen.");
+        button.disabled = false;
+      }
+    }
+
+    function downloadCsv() {
+      // Semikolon og BOM gjør at norsk Excel åpner filen riktig, med æøå
+      const header = ["Navn", "E-post", "Kommer", "Personer", "Allergier", "Hilsen", "Sendt"];
+      const quote = (v) => '"' + String(v ?? "").replace(/"/g, '""') + '"';
+      const lines = [header.map(quote).join(";")];
+      for (const r of visibleRows()) {
+        lines.push([
+          r.name, r.email, r.attending ? "Ja" : "Nei", r.attending ? r.guests : 0,
+          r.allergies, r.message, formatDate(r.submittedAt)
+        ].map(quote).join(";"));
+      }
+      const blob = new Blob(["\uFEFF" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "invitasjon-svar-" + new Date().toISOString().slice(0, 10) + ".csv";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    $("refresh").addEventListener("click", loadRows);
+    $("download").addEventListener("click", downloadCsv);
+    $("search").addEventListener("input", render);
+    $("filter").addEventListener("change", render);
+
+    loadUser();
+    loadRows();
+  </script>
+</body>
+</html>
